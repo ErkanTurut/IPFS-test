@@ -58,4 +58,4 @@ async function getData(hash) {
   }
 }
 
-getData("QmSytc9R1af69PEdm9fUxCv4qZPpHP23xes7V6BWqi6GAd");
+getData("QmfDsf9uDHVGZKfxR21cGWpzydzhPHD8eRmMgvyggVZ1yq");
