@@ -2,16 +2,18 @@
   "name": "ipfs",
   "version": "1.0.0",
   "type": "module",
-  "description": "",
-  "main": "main.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node test"
+    "start": "node ."
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "ipfs-http-client": "^55.0.0"
-  }
+    "fs": "^0.0.1-security",
+    "ipfs-http-client": "^55.0.0",
+    "js-ipfs": "^0.0.301"
+  },
+  "description": ""
 }
