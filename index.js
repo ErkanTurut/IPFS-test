@@ -1,63 +1,53 @@
-import { create } from "ipfs-http-client";
+const { create } = require("ipfs-http-client");
+const express = require("express");
+const bodyParser = require("body-parser");
+const fileUpload = require("express-fileupload");
+const fs = require("fs");
 
-import * as fs from "fs";
+const ipfs = create();
 
-async function ipfsClient() {
-  //const client = create("http://localhost:80");
+const app = express();
 
-  const ipfs = await create({
-    host: "ipfs.infura.io",
-    port: 5001,
-    protocol: "https",
+app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(fileUpload());
+
+app.get("/", (req, res) => {
+  res.render("home");
+});
+
+app.post("/upload", (req, res) => {
+  const file = req.files.file;
+  const fileName = req.body.fileName;
+  const filePath = "files/" + fileName;
+  //console.log(req);
+
+  file.mv(filePath, async (err) => {
+    if (err) {
+      console.log("Error: failed to download the file");
+      return res.status(500).send(err);
+    }
+    //console.log(filePath);
+    const fileHash = await addFile(fileName, filePath);
+
+    fs.unlink(filePath, (err) => {
+      if (err) console.log(err);
+    });
+
+    res.render("upload", { fileName, fileHash });
   });
+});
 
-  return ipfs;
-}
+const addFile = async (fileName, filePath) => {
+  const file = fs.readFileSync(filePath);
+  //console.log(file);
+  const fileAdded = await ipfs.add({ path: fileName, content: file });
+  //console.log(fileAdded);
+  const fileHash = fileAdded.cid;
 
-async function addText() {
-  let ipfs = await ipfsClient();
-  //const t = "Erkam";
-  let response = await ipfs.add(`Salut moi c'est Erkan Turut.`);
-  console.log(response);
-}
+  return fileHash;
+};
 
-//addText();
-
-async function addFile() {
-  let ipfs = await ipfsClient();
-
-  let data = fs.readFileSync("./wallpaper.jpg");
-
-  let options = {
-    warpWithDirectory: false,
-    progress: (prog) => console.log(`Saved : ${prog}`),
-  };
-
-  let response = await ipfs.add(data, options);
-  console.log(response);
-}
-
-//addFile();
-
-async function getData(hash) {
-  let ipfs = await ipfsClient();
-
-  let response = ipfs.cat(hash);
-
-  for await (const itr of response) {
-    let data = Buffer.from(itr).toString();
-    //console.log(data);
-    return data;
-  }
-}
-
-async function createFile() {
-  const v = await getData("QmdqKTrTwEc4QQ73fKiFgnSrsoe6CksN4iCY7asV6qSpTH");
-  console.log(v);
-  fs.appendFile("nft.txt", v, function (err) {
-    if (err) throw err;
-    console.log("File is created successfully.");
-  });
-}
-
-createFile();
+app.listen(3000, () => {
+  console.log("server is listening on port 3000");
+});
