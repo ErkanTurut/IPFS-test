@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const fileUpload = require("express-fileupload");
 const fs = require("fs");
 
-const ipfs = create();
+const ipfs = create("http://localhost:5001");
 
 const app = express();
 
